@@ -16,9 +16,9 @@ async def crear_client(client:Client, db:db_dependency):
 
     return {"message": "Client successfully created"}
 
-@client.get("/client/{id_company}/{role}", status_code=status.HTTP_200_OK, tags=["Client"])
-async def consultar_clientP(id_company: int, rol: str,db:db_dependency):
-    listClientP = db.query(ClientD).filter(ClientD.id == id_company, ClientD.rol == rol).all
+@client.get("/client/{ruc_company}/{rol}", status_code=status.HTTP_200_OK, tags=["Client"])
+async def consultar_clientP(ruc_company: int, rol: str,db:db_dependency):
+    listClientP = db.query(ClientD).filter(ClientD.ruc_company == ruc_company, ClientD.rol == rol).all
 
     if not listClientP:
         raise HTTPException(status_code=404, detail="Client not found")
