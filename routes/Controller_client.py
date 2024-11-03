@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
 from config.db_dependency import db_dependency
-import bcrypt
+
 #Importar las clases
 from models.client import Client
 from schemas.client import ClientD
@@ -18,7 +18,7 @@ async def crear_client(client:Client, db:db_dependency):
 
 @client.get("/client/{ruc_company}/{rol}", status_code=status.HTTP_200_OK, tags=["Client"])
 async def consultar_clientP(ruc_company: str, rol: str,db:db_dependency):
-    listClientP = db.query(ClientD).filter(ClientD.ruc_company == ruc_company, ClientD.rol == rol).all
+    listClientP = db.query(ClientD).filter(ClientD.ruc_company == ruc_company, ClientD.rol == rol).all()
 
     if not listClientP:
         raise HTTPException(status_code=404, detail="Client not found")
