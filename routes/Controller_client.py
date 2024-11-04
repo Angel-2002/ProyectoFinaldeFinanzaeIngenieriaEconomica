@@ -21,6 +21,16 @@ async def consultar_clientP(ruc_company: str, rol: str,db:db_dependency):
     listClientP = db.query(ClientD).filter(ClientD.ruc_company == ruc_company, ClientD.rol == rol).all()
 
     if not listClientP:
-        raise HTTPException(status_code=404, detail="Client not found")
+        raise HTTPException(status_code=404, detail="Clients not found")
+
+    return listClientP
+
+
+@client.get("/client/{ruc_company}", status_code=status.HTTP_200_OK, tags=["Client"])
+async def consultar_clientP(ruc_company: str, db:db_dependency):
+    listClientP = db.query(ClientD).filter(ClientD.ruc_company == ruc_company).all()
+
+    if not listClientP:
+        raise HTTPException(status_code=404, detail="Clients not found")
 
     return listClientP
