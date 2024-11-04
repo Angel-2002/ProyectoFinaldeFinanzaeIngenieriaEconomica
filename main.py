@@ -2,6 +2,9 @@ from fastapi import FastAPI
 from database import engine
 from tables import Base
 from routes.Controller_company import company
+from routes.Controller_client import client
+from routes.Controller_bank import bank
+from routes.Controller_wallet import wallet
 
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -30,3 +33,6 @@ async def on_startup():
 #http://127.0.0.1:8000
 
 app.include_router(company)
+app.include_router(client)
+app.include_router(bank)
+app.include_router(wallet)

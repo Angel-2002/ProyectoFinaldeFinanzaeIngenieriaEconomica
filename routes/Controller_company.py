@@ -33,14 +33,6 @@ async def consultar_companyID(id_company: int, db:db_dependency):
     
     return company
 
-@company.get("/company/{id_company}", status_code=status.HTTP_200_OK, tags=["Company"])
-async def consultar_companyID(id_company: int, db:db_dependency):
-    company = db.query(CompanyD).filter(CompanyD.id == id_company).first()
-
-    if company is None:
-        raise HTTPException(status_code=404, detail="Company had not found")
-    
-    return company
 
 @company.get("/company/{RUC}/{password}", status_code=status.HTTP_200_OK, tags=["Company"])
 async def consultar_usuarioRUCpsswrd(RUC:str, password:str, db:db_dependency):
