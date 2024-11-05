@@ -25,7 +25,7 @@ async def consultar_bankID(id_bank: int, db:db_dependency):
     
     return bank
 
-@bank.get("/bankn/{nombre}", status_code=status.HTTP_200_OK, tags=["Bank"])
+@bank.get("/bank/{nombre}", status_code=status.HTTP_200_OK, tags=["Bank"])
 async def consultar_banknombre(nombre: str, db:db_dependency):
     bank = db.query(BankD).filter(BankD.nombre == nombre).first()
 
@@ -33,3 +33,12 @@ async def consultar_banknombre(nombre: str, db:db_dependency):
         raise HTTPException(status_code=404, detail="Bank had not found")
     
     return bank
+
+@bank.get("/banks", status_code=status.HTTP_200_OK, tags=["Bank"])
+async def consultar_banks(db:db_dependency):
+    listBank = db.query(BankD).all()
+
+    if listBank is None:
+        raise HTTPException(status_code=404, detail="Bank had not found")
+    
+    return listBank
