@@ -39,6 +39,6 @@ async def consultar_banks(db:db_dependency):
     listBank = db.query(BankD).all()
 
     if listBank is None:
-        raise HTTPException(status_code=404, detail="Bank had not found")
+        raise HTTPException(status_code=404, detail="Banks had not found")
     
     return listBank
