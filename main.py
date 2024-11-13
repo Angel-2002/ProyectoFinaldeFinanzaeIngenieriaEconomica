@@ -5,6 +5,7 @@ from routes.Controller_company import company
 from routes.Controller_client import client
 from routes.Controller_bank import bank
 from routes.Controller_wallet import wallet
+from routes.Controller_document import document
 
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -36,3 +37,4 @@ app.include_router(company)
 app.include_router(client)
 app.include_router(bank)
 app.include_router(wallet)
+app.include_router(document)
