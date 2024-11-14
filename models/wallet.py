@@ -8,7 +8,6 @@ class Wallet(BaseModel):
     fecha_descuento: str
     id_banco: int
     estado: Optional[str] = Field(default="pendiente")
-    tcea: Optional[float] = Field(default=0.00)
     tipo_tasa: str
     periodo: str
     tasa: float

@@ -92,8 +92,35 @@ async def crear_document(document:Document, db:db_dependency):
     monto_recibido = round(db_document.valor_nominal*(1-tasa_descuento),2)
     db_document.monto_recibido = monto_recibido
 
+    #Calculamos TCEA
+    tcea = ((db_document.valor_nominal/db_document.monto_recibido)**(360/db_document.plazo))-1
+
+    db_document.tcea = round(tcea,4)
+
+    #Actualizamos la TCEA de la cartera
+    listDocument = db.query(DocumentD).all()
+
+    numerador   = 0.00
+    denominador = 0.00
+
+    if not listDocument:
+        numerador=db_document.tcea*db_document.valor_nominal
+        denominador=db_document.valor_nominal
+        
+    else:
+        for document in listDocument:
+            numerador=numerador+document.tcea*document.valor_nominal
+            denominador=denominador+document.valor_nominal
+
+    tcea_wallet=round((numerador/denominador),4)
+
+    wallet.tcea = tcea_wallet
+
+
     db.add(db_document)
+    db.add(wallet)
     db.commit()
+    db.refresh(wallet)
 
     return {"message": "Document successfully created"}
 
