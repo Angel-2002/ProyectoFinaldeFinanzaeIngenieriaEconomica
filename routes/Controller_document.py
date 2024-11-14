@@ -27,12 +27,12 @@ async def crear_document(document:Document, db:db_dependency):
 
     TEplazo=wallet.tasa
     #Calcular tasa descuento
-    if (wallet.tipo_tasa=="Efectiva"):
-        if(wallet.periodo=="Anual"):
+    if (wallet.tipo_tasa=="efectiva"):
+        if(wallet.periodo=="anual"):
             #Pasamos de TEAnual a TEplazo:
             TEplazo=(1+wallet.tasa)**(plazo/360)-1
 
-        elif(wallet.periodo=="Mensual"):
+        elif(wallet.periodo=="mensual"):
             #Pasamos de TEMensual a TEplazo:
             TEplazo=(1+wallet.tasa)**(plazo/30)-1
         
@@ -41,12 +41,12 @@ async def crear_document(document:Document, db:db_dependency):
             TEplazo=(1+wallet.tasa)**(plazo/1)-1
     else:
         #TASA NOMINAL
-        if(wallet.capitalizacion=="Anual"):
-            if(wallet.periodo=="Anual"):
+        if(wallet.capitalizacion=="anual"):
+            if(wallet.periodo=="anual"):
                 #Pasamos de TNAnual a TEplazo:
                 TEplazo=(1+wallet.tasa/(360/360))**(plazo/360)-1
             
-            elif(wallet.periodo=="Mensual"):
+            elif(wallet.periodo=="mensual"):
                 #Pasamos de TNMensual a TEplazo:
                 TEplazo=(1+wallet.tasa/(30/360))**(plazo/360)-1
             
@@ -54,12 +54,12 @@ async def crear_document(document:Document, db:db_dependency):
                 #Pasamos de TNDiaria a TEplazo:
                 TEplazo=(1+wallet.tasa/(1/360))**(plazo/360)-1
         
-        elif(wallet.capitalizacion=="Mensual"):
-            if(wallet.periodo=="Anual"):
+        elif(wallet.capitalizacion=="mensual"):
+            if(wallet.periodo=="anual"):
                 #Pasamos de TNAnual a TEplazo:
                 TEplazo=(1+wallet.tasa/(360/30))**(plazo/30)-1
             
-            elif(wallet.periodo=="Mensual"):
+            elif(wallet.periodo=="mensual"):
                 #Pasamos de TNMensual a TEplazo:
                 TEplazo=(1+wallet.tasa/(30/30))**(plazo/30)-1
             
@@ -68,11 +68,11 @@ async def crear_document(document:Document, db:db_dependency):
                 TEplazo=(1+wallet.tasa/(1/30))**(plazo/30)-1
 
         else:
-            if(wallet.periodo=="Anual"):
+            if(wallet.periodo=="anual"):
                 #Pasamos de TNAnual a TEplazo:
                 TEplazo=(1+wallet.tasa/(360))**(plazo)-1
             
-            elif(wallet.periodo=="Mensual"):
+            elif(wallet.periodo=="mensual"):
                 #Pasamos de TNMensual a TEplazo:
                 TEplazo=(1+wallet.tasa/(30))**(plazo)-1
             
