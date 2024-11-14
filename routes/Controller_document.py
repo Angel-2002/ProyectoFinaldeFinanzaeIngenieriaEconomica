@@ -98,7 +98,7 @@ async def crear_document(document:Document, db:db_dependency):
     db_document.tcea = round(tcea,4)
 
     #Actualizamos la TCEA de la cartera
-    listDocument = db.query(DocumentD).all()
+    listDocument = db.query(DocumentD).filter(DocumentD.id_cartera==db_document.id_cartera).all()
 
     numerador   = 0.00
     denominador = 0.00
@@ -124,9 +124,9 @@ async def crear_document(document:Document, db:db_dependency):
 
     return {"message": "Document successfully created"}
 
-@document.get("/documents", status_code=status.HTTP_200_OK, tags=["Document"])
-async def consultar_documentos(db:db_dependency):
-    listDocument = db.query(DocumentD).all()
+@document.get("/documents/{id_cartera}", status_code=status.HTTP_200_OK, tags=["Document"])
+async def consultar_documentos(id_cartera: int, db:db_dependency):
+    listDocument = db.query(DocumentD).filter(DocumentD.id_cartera==id_cartera).all()
 
     if not listDocument:
         raise HTTPException(status_code=404, detail="Documents had not found")
