@@ -16,6 +16,7 @@ async def crear_wallet(wallet:Wallet, db:db_dependency):
     fecha_descuento = datetime.strptime(wallet.fecha_descuento, "%d/%m/%Y")
 
     db_wallet.fecha_descuento = fecha_descuento
+    db_wallet.tcea=0.0000
 
     db.add(db_wallet)
     db.commit()

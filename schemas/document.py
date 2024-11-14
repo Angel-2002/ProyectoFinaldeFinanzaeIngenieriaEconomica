@@ -20,3 +20,4 @@ class DocumentD(Base):
     plazo = Column(Integer, nullable=True, index=True)
     tasa_descuento = Column(Float, nullable=True, index=True)
     interes_descontado = Column(Float, nullable=True, index=True)
+    tcea = Column(Float, nullable=True, index=True)
