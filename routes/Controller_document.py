@@ -16,8 +16,14 @@ async def crear_document(document:Document, db:db_dependency):
     fecha_emision = datetime.strptime(document.fecha_emision, "%d/%m/%Y")
     fecha_vencimiento = datetime.strptime(document.fecha_vencimiento, "%d/%m/%Y")
 
+    # Comparar la fecha de vencimiento con la fecha actual
+    if fecha_vencimiento < datetime.now():
+        sstatus = "vencido"
+        db_document.estado = sstatus
+
     db_document.fecha_emision = fecha_emision
     db_document.fecha_vencimiento = fecha_vencimiento
+    
 
     # Consulta la cartera asociado
     wallet = db.query(WalletD).filter(WalletD.id == db_document.id_cartera).first()
@@ -132,3 +138,40 @@ async def consultar_documentos(id_cartera: int, db:db_dependency):
         raise HTTPException(status_code=404, detail="Documents had not found")
 
     return listDocument
+
+
+@document.put("/documents/{id}/{estado}", status_code=status.HTTP_200_OK, tags=["Document"])
+async def actualizar_documento(id: int, estado: str, db: db_dependency):
+    # Consulta el documento por ID
+    docmento = db.query(DocumentD).filter(DocumentD.id == id).first()
+    
+    # Verifica si el documento existe
+    if not docmento:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    # Actualiza el estado del documento
+    docmento.estado = estado
+
+    # Consulta la cartera asociado
+    wallet = db.query(WalletD).filter(WalletD.id == docmento.id_cartera).first()
+
+    listDocument = db.query(DocumentD).filter(DocumentD.id_cartera==docmento.id_cartera).all()
+
+    statusWallet = "pagado"
+
+    for aux in listDocument:
+        if (aux == "pendiente") or (aux == "vencido"):
+           statusWallet="pendiente"
+
+    wallet.estado = statusWallet
+
+    # Guarda los cambios en la base de datos
+    db.add(wallet)
+    db.add(docmento)
+    db.commit()
+    db.refresh(wallet)
+    db.refresh(docmento)  # Refresca la instancia para obtener los valores actualizados
+
+    # Retorna el documento actualizado directamente
+    return docmento
+
