@@ -16,11 +16,24 @@ async def crear_document(document:Document, db:db_dependency):
     fecha_emision = datetime.strptime(document.fecha_emision, "%d/%m/%Y")
     fecha_vencimiento = datetime.strptime(document.fecha_vencimiento, "%d/%m/%Y")
 
+    sstatus="pendiente"
+
+    # Comparar la fecha de vencimiento con la fecha actual
+    if fecha_vencimiento < datetime.now():
+        sstatus = "vencido"
+        db_document.estado = sstatus
+
     db_document.fecha_emision = fecha_emision
     db_document.fecha_vencimiento = fecha_vencimiento
+    
 
     # Consulta la cartera asociado
     wallet = db.query(WalletD).filter(WalletD.id == db_document.id_cartera).first()
+
+    # Actualizamos el estado pagado de la cartera a pendiente, si la nueva factura o letra tiene estado pendiente o vencido
+    if (db_document.estado == "pendiente") or (db_document.estado == "vencido"):
+        sstatus="pendiente"
+        wallet.estado = sstatus 
 
     plazo = (fecha_vencimiento - wallet.fecha_descuento).days
     db_document.plazo = plazo
@@ -98,7 +111,7 @@ async def crear_document(document:Document, db:db_dependency):
     db_document.tcea = round(tcea,4)
 
     #Actualizamos la TCEA de la cartera
-    listDocument = db.query(DocumentD).all()
+    listDocument = db.query(DocumentD).filter(DocumentD.id_cartera==db_document.id_cartera).all()
 
     numerador   = 0.00
     denominador = 0.00
@@ -124,11 +137,48 @@ async def crear_document(document:Document, db:db_dependency):
 
     return {"message": "Document successfully created"}
 
-@document.get("/documents", status_code=status.HTTP_200_OK, tags=["Document"])
-async def consultar_documentos(db:db_dependency):
-    listDocument = db.query(DocumentD).all()
+@document.get("/documents/{id_cartera}", status_code=status.HTTP_200_OK, tags=["Document"])
+async def consultar_documentos(id_cartera: int, db:db_dependency):
+    listDocument = db.query(DocumentD).filter(DocumentD.id_cartera==id_cartera).all()
 
     if not listDocument:
         raise HTTPException(status_code=404, detail="Documents had not found")
 
     return listDocument
+
+
+@document.put("/documents/{id}/{estado}", status_code=status.HTTP_200_OK, tags=["Document"])
+async def actualizar_documento(id: int, estado: str, db: db_dependency):
+    # Consulta el documento por ID
+    docmento = db.query(DocumentD).filter(DocumentD.id == id).first()
+    
+    # Verifica si el documento existe
+    if not docmento:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    # Actualiza el estado del documento
+    docmento.estado = estado
+
+    # Consulta la cartera asociado
+    wallet = db.query(WalletD).filter(WalletD.id == docmento.id_cartera).first()
+
+    listDocument = db.query(DocumentD).filter(DocumentD.id_cartera==docmento.id_cartera).all()
+
+    statusWallet = "pagado"
+
+    for aux in listDocument:
+        if (aux.estado == "pendiente") or (aux.estado == "vencido"):
+           statusWallet="pendiente"
+
+    wallet.estado = statusWallet
+
+    # Guarda los cambios en la base de datos
+    db.add(wallet)
+    db.add(docmento)
+    db.commit()
+    db.refresh(wallet)
+    db.refresh(docmento)  # Refresca la instancia para obtener los valores actualizados
+
+    # Retorna el documento actualizado directamente
+    return docmento
+
