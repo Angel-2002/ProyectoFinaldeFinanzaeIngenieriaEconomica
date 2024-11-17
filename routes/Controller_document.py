@@ -16,6 +16,8 @@ async def crear_document(document:Document, db:db_dependency):
     fecha_emision = datetime.strptime(document.fecha_emision, "%d/%m/%Y")
     fecha_vencimiento = datetime.strptime(document.fecha_vencimiento, "%d/%m/%Y")
 
+    sstatus="pendiente"
+
     # Comparar la fecha de vencimiento con la fecha actual
     if fecha_vencimiento < datetime.now():
         sstatus = "vencido"
@@ -27,6 +29,11 @@ async def crear_document(document:Document, db:db_dependency):
 
     # Consulta la cartera asociado
     wallet = db.query(WalletD).filter(WalletD.id == db_document.id_cartera).first()
+
+    # Actualizamos el estado pagado de la cartera a pendiente, si la nueva factura o letra tiene estado pendiente o vencido
+    if (db_document.estado == "pendiente") or (db_document.estado == "vencido"):
+        sstatus="pendiente"
+        wallet.estado = sstatus 
 
     plazo = (fecha_vencimiento - wallet.fecha_descuento).days
     db_document.plazo = plazo
@@ -160,7 +167,7 @@ async def actualizar_documento(id: int, estado: str, db: db_dependency):
     statusWallet = "pagado"
 
     for aux in listDocument:
-        if (aux == "pendiente") or (aux == "vencido"):
+        if (aux.estado == "pendiente") or (aux.estado == "vencido"):
            statusWallet="pendiente"
 
     wallet.estado = statusWallet
